@@ -1,30 +1,43 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { barConfig } from "@/config";
 import './index.less'
+import { IConfig } from "@/types";
 
 export default function HomePage() {
     const navigate = useNavigate();
-    
-    const goto = (path: string)=>{
-        navigate(path);
+
+    const goto = (row: IConfig)=> {
+        if(row.type === 'push'){
+            navigate(row.path);
+        } else {
+            window.open(row.path, '_blank');
+        }
     }
-
-
-
 
     return <div className="home-container">
         {/* 个人介绍部分 */}
-        <header className="header">
+        <header className="header"> 
             <nav>
                 {
                     barConfig.map((item, index) => {
-                        return <span
-                            key={index}
-                            className="nav-item"
-                            onClick={() => goto(item.key)}
-                        >
-                            {item.label}
-                        </span>
+                        if (item.isIcon) {
+                            return <span
+                                key={index}
+                                className="nav-item"
+                                onClick={() => goto(item)}
+                            >
+                                {item.icon}
+                            </span>
+                        } else {
+                            return <span
+                                key={index}
+                                className="nav-item"
+                                onClick={() => goto(item)}
+                            >
+                                {item.label}
+                            </span>
+                        }
+
                     })
                 }
             </nav>

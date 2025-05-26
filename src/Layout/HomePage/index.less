@@ -1,0 +1,65 @@
+@import "../../global_variable.less";
+
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    // 导航栏样式
+    .header {
+        padding: 20px 0;
+
+        nav {
+            display: flex;
+            justify-content: flex-end;
+            gap: 30px;
+            .nav-item{
+                cursor: pointer;
+                color: #333;
+                transition: color 0.3s;
+
+                &:hover {
+                    color: @font_color;
+                }
+            }
+        }
+    }
+}
+
+// 通用按钮样式
+.contact-btn {
+    padding: 12px 30px;
+    background: #111827;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s;
+
+    &:hover {
+        background: #111827;
+    }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+    .home-container {
+        .intro-section {
+            flex-direction: column;
+            text-align: center;
+
+            .profile-image {
+                margin-top: 30px;
+            }
+        }
+
+        .skills-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .portfolio-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}

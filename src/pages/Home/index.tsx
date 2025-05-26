@@ -1,6 +1,7 @@
 import React from 'react';
 
 import './index.less';
+import { Github } from '@icon-park/react';
 
 const Home: React.FC = () => {
     return (
@@ -82,12 +83,12 @@ const Home: React.FC = () => {
             <section className="contact-section">
                 <h2>联系方式</h2>
                 <div className="social-links">
-                    <a href="#" className="social-link">GitHub</a>
+                    <Github theme="outline" size="24" fill="#333" />
                     <a href="#" className="social-link">LinkedIn</a>
                     <a href="#" className="social-link">Twitter</a>
                     <a href="#" className="social-link">Email</a>
                 </div>
-                <button className="contact-btn">发送消息</button>
+                <button className="contact-btn">发送邮件</button>
             </section>
         </>
     );

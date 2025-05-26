@@ -6,8 +6,8 @@ import { IConfig } from "@/types";
 export default function HomePage() {
     const navigate = useNavigate();
 
-    const goto = (row: IConfig)=> {
-        if(row.type === 'push'){
+    const goto = (row: IConfig) => {
+        if (row.type === 'push') {
             navigate(row.path);
         } else {
             window.open(row.path, '_blank');
@@ -16,7 +16,7 @@ export default function HomePage() {
 
     return <div className="home-container">
         {/* 个人介绍部分 */}
-        <header className="header"> 
+        <header className="header">
             <nav>
                 {
                     barConfig.map((item, index) => {

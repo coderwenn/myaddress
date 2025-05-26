@@ -1,4 +1,4 @@
-import './App.css'
+import './App.less'
 import { HashRouter } from 'react-router-dom'
 import Router from './router'
 

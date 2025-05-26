@@ -1,8 +1,4 @@
 import { IConfig } from '@/types';
-// 需要先安装 @ant-design/icons 依赖
-// npm install @ant-design/icons --save
-// 或
-// yarn add @ant-design/icons
 import { GithubOutlined } from '@ant-design/icons';
 
 // bar 菜单配置

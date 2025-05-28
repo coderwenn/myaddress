@@ -2,6 +2,7 @@ import { useRoutes, Navigate, RouteObject } from "react-router-dom";
 import Home from "@/pages/Home";
 import Vitae from "@/pages/Vitae";
 import HomePage from "@/Layout/HomePage";
+import Note from "@/pages/Note";
 
 
 const rootRouter: RouteObject[] = [
@@ -16,6 +17,10 @@ const rootRouter: RouteObject[] = [
             {
                 path: "/home",
                 element: <Home />,
+            },
+            {
+                path: "/note",
+                element: <Note />,
             },
             {
                 path: "/curriculumVitae",

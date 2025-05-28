@@ -18,6 +18,13 @@ export const barConfig: IConfig[] = [
     path: '/curriculumVitae'
   },
   {
+    label: '笔记',
+    key: 'note',
+    type: 'push',
+    isIcon: false,
+    path: '/note'
+  },
+  {
     label: '博客',
     key: '/blog',
     type: 'open',

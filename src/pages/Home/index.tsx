@@ -5,7 +5,7 @@ import { Github } from '@icon-park/react';
 
 const Home: React.FC = () => {
     return (
-        <>
+        <div className='mesBox'>
             <section className="intro-section">
                 <div className="intro-content">
                     <h1>你好，我是温千禧</h1>
@@ -41,28 +41,28 @@ const Home: React.FC = () => {
                 <h2>精选作品</h2>
                 <div className="portfolio-grid">
                     <div className="portfolio-item">
-                        <img src="/path/to/project1.jpg" alt="智能客服设计" />
+                        <img src="http://www.zztaitung.com/wp-content/uploads/2016/01/%E9%83%BD%E8%98%AD%E7%81%A3%E8%A1%9D%E6%B5%AA-3-75_%E8%AA%BF%E6%95%B4%E5%A4%A7%E5%B0%8F.jpg" alt="社交媒体设计" />
                         <h3>智能客服设计</h3>
                         <p>基于AI的智能客服系统界面设计</p>
-                        <a href="#" className="view-more">查看更多</a>
+                        <a href="#" className="view-more">了解更多</a>
                     </div>
                     <div className="portfolio-item">
-                        <img src="/path/to/project2.jpg" alt="金融应用界面" />
+                        <img src="http://www.zztaitung.com/wp-content/uploads/2016/01/%E9%83%BD%E8%98%AD%E7%81%A3%E8%A1%9D%E6%B5%AA-3-75_%E8%AA%BF%E6%95%B4%E5%A4%A7%E5%B0%8F.jpg" alt="社交媒体设计" />
                         <h3>金融应用界面</h3>
                         <p>专业的金融数据可视化界面设计</p>
-                        <a href="#" className="view-more">查看更多</a>
+                        <a href="#" className="view-more">了解更多</a>
                     </div>
                     <div className="portfolio-item">
-                        <img src="/path/to/project3.jpg" alt="教育平台设计" />
+                        <img src="http://www.zztaitung.com/wp-content/uploads/2016/01/%E9%83%BD%E8%98%AD%E7%81%A3%E8%A1%9D%E6%B5%AA-3-75_%E8%AA%BF%E6%95%B4%E5%A4%A7%E5%B0%8F.jpg" alt="社交媒体设计" />
                         <h3>教育平台设计</h3>
                         <p>在线教育平台的整体界面设计</p>
-                        <a href="#" className="view-more">查看更多</a>
+                        <a href="#" className="view-more">了解更多</a>
                     </div>
                     <div className="portfolio-item">
-                        <img src="/path/to/project4.jpg" alt="社交媒体设计" />
+                        <img src="http://www.zztaitung.com/wp-content/uploads/2016/01/%E9%83%BD%E8%98%AD%E7%81%A3%E8%A1%9D%E6%B5%AA-3-75_%E8%AA%BF%E6%95%B4%E5%A4%A7%E5%B0%8F.jpg" alt="社交媒体设计" />
                         <h3>社交媒体设计</h3>
                         <p>社交媒体应用的UI/UX设计</p>
-                        <a href="#" className="view-more">查看更多</a>
+                        <a href="#" className="view-more">了解更多</a>
                     </div>
                 </div>
             </section>
@@ -90,7 +90,7 @@ const Home: React.FC = () => {
                 </div>
                 <button className="contact-btn">发送邮件</button>
             </section>
-        </>
+        </div>
     );
 };
 

@@ -1,7 +1,9 @@
 import React from 'react';
+import { Github } from '@icon-park/react';
+import img from '@/file/images/图片.jpg'
 
 import './index.less';
-import { Github } from '@icon-park/react';
+
 
 const Home: React.FC = () => {
     return (
@@ -13,7 +15,7 @@ const Home: React.FC = () => {
                     <button className="contact-btn">查看作品</button>
                 </div>
                 <div className="profile-image">
-                    <img src="/path/to/your/image.jpg" alt="个人照片" />
+                    <img src={img} alt="个人照片" />
                 </div>
             </section>
 

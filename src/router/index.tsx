@@ -3,6 +3,7 @@ import Home from "@/pages/Home";
 import Vitae from "@/pages/Vitae";
 import HomePage from "@/Layout/HomePage";
 import Note from "@/pages/Note";
+import NoteHome from "@/pages/Note/NoteHome";
 
 
 const rootRouter: RouteObject[] = [
@@ -21,6 +22,15 @@ const rootRouter: RouteObject[] = [
             {
                 path: "/note",
                 element: <Note />,
+                children: [
+                    {
+                        path: "/note",
+                        element: <NoteHome />,
+                    },
+                    {
+
+                    }
+                ]
             },
             {
                 path: "/curriculumVitae",

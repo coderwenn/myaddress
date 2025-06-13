@@ -1,9 +1,10 @@
-import {Outlet} from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
-export default ()=>{
+export default () => {
+
     return (
         <>
-            <Outlet/>
+            <Outlet />
         </>
     )
 }

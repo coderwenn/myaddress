@@ -8,6 +8,7 @@ import NoteHome from "@/pages/Note/NoteHome";
 
 // 路由懒加载
 const AddNote = React.lazy(() => import("@/pages/Note/AddNote"));
+const Chat = React.lazy(() => import("@/pages/Chat"));
 
 
 const rootRouter: RouteObject[] = [
@@ -40,6 +41,10 @@ const rootRouter: RouteObject[] = [
             {
                 path: "/curriculumVitae",
                 element: <Vitae />,
+            },
+            {
+                path: "/chat",
+                element: <Chat />,
             }
         ],
     }

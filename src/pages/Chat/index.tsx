@@ -6,6 +6,7 @@ import {
   UserOutlined,
   SendOutlined,
 } from '@ant-design/icons';
+import Message from './components/Message';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -102,24 +103,9 @@ const ChatPage = () => {
               borderRadius: 4,
             }}
           >
-            <List
-              itemLayout="bubble"
-              dataSource={messages}
-              renderItem={(msg) => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar icon={msg.isUser ? <UserOutlined /> : <MessageOutlined />} />
-                    }
-                    content={
-                      <Space direction="vertical">
-                        <Text>{msg.content}</Text>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
+            {
+              messages.map(e => <Message type={e.isUser ? 'user' : 'assistant'} content={e.content} contentType="text" />)
+            }
           </div>
           <div style={{ marginTop: 16 }}>
             <Input

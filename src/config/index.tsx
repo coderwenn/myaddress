@@ -25,11 +25,18 @@ export const barConfig: IConfig[] = [
     path: '/note'
   },
   {
+    label: '聊天',
+    key: 'chat',
+    type: 'push',
+    isIcon: false,
+    path: '/chat'
+  },
+  {
     label: '博客',
     key: '/blog',
     type: 'open',
     isIcon: true,
     icon: <GithubOutlined />,
     path:'https://github.com/coderwenn'
-  }
+  },
 ]

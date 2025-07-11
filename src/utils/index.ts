@@ -30,8 +30,3 @@ function isPalindromeNumber(num: number | string) {
     }
     return true;
 }
-
-// 测试代码
-console.log(isPalindromeNumber(121)); // 输出：true
-console.log(isPalindromeNumber(-121)); // 输出：false，因为负号的存在使得它不是回文
-console.log(isPalindromeNumber(123)); // 输出：false

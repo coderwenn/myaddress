@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Layout, Menu, Input, Button, Typography } from 'antd';
+import { Layout, Menu, Input, Button, Typography, message as mes } from 'antd';
 import {
   MessageOutlined,
   PlusOutlined,
@@ -9,34 +9,31 @@ import Message from './components/Message';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 // import { mockMessages } from './mockData'
 import { messageType } from './type'
+import { getImgTask, getImgUrl } from './service';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
 const ChatPage = () => {
-  const [currentTab, setCurrentTab] = useState('关于人工智能的讨论');
-  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'text' | 'img'>('text');
+  const [message, setMessage] = useState('一间有着精致窗户的花店，漂亮的木质门，摆放着花朵');
   const [messList, setMesList] = useState<messageType[]>([])
 
-  // 模拟历史对话数据
+  // api类型
   const conversationTabs = [
-    { key: '关于人工智能的讨论', label: '关于人工智能的讨论' },
-    { key: '如何提高工作效率', label: '如何提高工作效率' },
-    { key: '学习新技能的方法', label: '学习新技能的方法' },
-    { key: '旅行计划建议', label: '旅行计划建议' },
-    { key: '健康饮食习惯', label: '健康饮食习惯' },
+    { key: 'text', label: '聊天' },
+    { key: 'img', label: '图片生成' },
   ];
 
-  const handleTabChange = (key: string) => {
-    setCurrentTab(key);
+  const handleTabChange = (key: 'text' | 'img') => {
+    setMessageType(key);
   };
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
   };
 
-  const handleSendMessage = async () => {
-    if (message.trim() === '') return;
+  const sendTxt = () => {
     // 这里可以添加发送消息的逻辑
     setMessage('');
     setMesList([...messList, {
@@ -75,6 +72,47 @@ const ChatPage = () => {
         });
       },
     })
+  }
+
+  const sendImg = async () => {
+    // 这里可以添加发送消息的逻辑
+    setMessage('');
+    setMesList([...messList, {
+      id: messList.length + 1,
+      content: message,
+      isUser: true,
+    }])
+    // 请求
+    const taskRes = await getImgTask(message)
+
+    if (taskRes) {
+      // 轮询请求接口
+      let time = setInterval(async () => {
+        const imgRes = await getImgUrl(taskRes.data.output.task_id)
+        if (imgRes.data.usage.image_count === 1) {
+          setMesList((prev) => {
+            return [...prev, {
+              id: prev.length + 1,
+              content: imgRes.data.output.results[0].url,
+              isUser: false,
+            }]
+          })
+          clearInterval(time)
+        }
+      }, 2000)
+    } else {
+      mes.warning(taskRes)
+    }
+
+  }
+
+  const handleSendMessage = async () => {
+    if (message.trim() === '') return;
+    if (messageType === 'text') {
+      sendTxt()
+    } else if (messageType === 'img') {
+      sendImg()
+    }
   };
 
   return (
@@ -85,20 +123,16 @@ const ChatPage = () => {
             AIChat
           </Title>
         </div>
-        <Button
-          type="dashed"
-          icon={<PlusOutlined />}
-          style={{ width: '100%', marginBottom: 16 }}
-        >
-          新建对话
-        </Button>
         <Menu
-          selectedKeys={[currentTab]}
-          onSelect={({ key }) => handleTabChange(key)}
+          selectedKeys={[messageType]}
+          onSelect={({ key }) => handleTabChange(key as 'text' | 'img')}
           mode="inline"
         >
           {conversationTabs.map((tab) => (
-            <Menu.Item key={tab.key} icon={<MessageOutlined />}>
+            <Menu.Item
+              key={tab.key}
+              icon={<MessageOutlined />}
+            >
               {tab.label}
             </Menu.Item>
           ))}
@@ -108,7 +142,7 @@ const ChatPage = () => {
         <Header style={{ padding: 0, background: '#fff' }}>
           <div style={{ padding: '0 16px', height: '100%' }}>
             <Title level={4} style={{ margin: 0, lineHeight: '64px' }}>
-              {currentTab}
+              {messageType}
             </Title>
           </div>
         </Header>
@@ -122,7 +156,15 @@ const ChatPage = () => {
             }}
           >
             {
-              messList.map(e => <Message type={e.isUser ? 'user' : 'assistant'} key={e.id} content={e.content} contentType="text" />)
+              messList.map(
+                e =>
+                  <Message
+                    type={e.isUser ? 'user' : 'assistant'}
+                    key={e.id}
+                    content={e.content}
+                    contentType={messageType}
+                  />
+              )
             }
           </div>
           <div style={{ marginTop: 16 }}>

@@ -1,10 +1,10 @@
 import React from "react";
 
-// 消息类型
 interface IProps {
     type: 'user' | 'assistant';
     content: string;
     contentType: 'text' | 'img';
+    loading?: boolean;
 }
 
 const Message: React.FC<IProps> = (props) => {
@@ -19,7 +19,7 @@ const Message: React.FC<IProps> = (props) => {
                 </div>
             </div>
         ) : (
-            <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '5px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '5px 0', maxWidth: '80%' }}>
                 <div style={{ background: '#ffffff', padding: '10px', borderRadius: '10px' }}>
                     {contentType === 'text' ? content : <img width={700} src={content} alt="" />}
                 </div>

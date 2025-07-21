@@ -23,16 +23,20 @@ export function helper(str: string): number {
     } else return factorial(str.length)
 }
 
-function isPalindromeNumber(num: number | string) {
-    // 将数字转换为字符串
-    const str = num.toString();
-    // 获取字符串的长度
-    const len = str.length;
-    // 对半比较字符
-    for (let i = 0; i < len / 2; i++) {
-        if (str[i] !== str[len - 1 - i]) {
-            return false;
+// 解析url中的参数
+export function parseUrlParams(url: string): Record<string, string> {
+    const params: Record<string, string> = {};
+    if(window?.URLSearchParams) {
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        urlParams.forEach((value, key) => {
+            params[key] = value;
+        });
+    } else {
+        const pairs = url.split('&');
+        for (const pair of pairs) {
+            const [key, value] = pair.split('=');
+            params[key] = decodeURIComponent(value);
         }
     }
-    return true;
+    return params;
 }

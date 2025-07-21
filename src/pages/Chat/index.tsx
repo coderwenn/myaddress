@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout, Typography, message as mes } from 'antd';
 import Message from './components/Message';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
@@ -6,6 +7,7 @@ import { messageType } from './type'
 import { getImgTask, getImgUrl } from './service';
 import AiMesPushButton from './components/AiMesPushButton';
 import AiType from './components/AiType';
+import useUserInfo from '@/store';
 
 import style from './index.module.less';
 
@@ -13,6 +15,7 @@ const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
 const ChatPage = () => {
+
   const [messList, setMesList] = useState<{
     text: messageType[],
     img: messageType[]
@@ -20,6 +23,10 @@ const ChatPage = () => {
     text: [],
     img: []
   })
+
+  const userInfo = useUserInfo(e=> e.userInfo);
+  const navigate = useNavigate();
+  
   const [aiType, setAitype] = useState<'text' | 'img'>('text');
 
   const sendTxt = (message: string) => {
@@ -123,6 +130,16 @@ const ChatPage = () => {
     await sendAiFun[ket]?.(message)
     return true;
   }
+
+  useEffect(()=> {
+      console.log(userInfo, 'userInfo')
+    if(!userInfo || !Object.keys(userInfo).length){
+      mes.warning('请先登录')
+      setTimeout(() => {
+        navigate('/login?redirect=' + window.location.href)
+      }, 1000)
+    }
+  }, [userInfo])
 
   return (
     <Layout style={{ minHeight: 'calc(100vh - 60px)', marginTop: 4, background: '#f5f5f5' }}>

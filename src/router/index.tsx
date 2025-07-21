@@ -5,6 +5,7 @@ import Vitae from "@/pages/Vitae";
 import HomePage from "@/Layout/HomePage";
 import Note from "@/pages/Note";
 import NoteHome from "@/pages/Note/NoteHome";
+import Login from "@/pages/Login";
 
 // 路由懒加载
 const AddNote = React.lazy(() => import("@/pages/Note/AddNote"));
@@ -45,9 +46,14 @@ const rootRouter: RouteObject[] = [
             {
                 path: "/chat",
                 element: <Chat />,
-            }
+            },
+
         ],
-    }
+    },
+    {
+        path: "/login",
+        element: <Login />,
+    },
 ];
 
 const Router = () => {

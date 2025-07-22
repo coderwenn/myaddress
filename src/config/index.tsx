@@ -39,4 +39,11 @@ export const barConfig: IConfig[] = [
     icon: <GithubOutlined />,
     path:'https://github.com/coderwenn'
   },
+  {
+    label: '去登录',
+    key: 'login',
+    type: 'push',
+    isIcon: false,
+    path: '/login'
+  }
 ]

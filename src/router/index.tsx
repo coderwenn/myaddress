@@ -11,7 +11,6 @@ import Login from "@/pages/Login";
 const AddNote = React.lazy(() => import("@/pages/Note/AddNote"));
 const Chat = React.lazy(() => import("@/pages/Chat"));
 
-
 const rootRouter: RouteObject[] = [
     {
         path: "/",
@@ -43,12 +42,12 @@ const rootRouter: RouteObject[] = [
                 path: "/curriculumVitae",
                 element: <Vitae />,
             },
-            {
-                path: "/chat",
-                element: <Chat />,
-            },
-
         ],
+    },
+    // 聊天路由 需要登陆
+    {
+        path: "/chat",
+        element: <Chat />,
     },
     {
         path: "/login",

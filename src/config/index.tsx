@@ -45,5 +45,12 @@ export const barConfig: IConfig[] = [
     type: 'push',
     isIcon: false,
     path: '/login'
+  },
+  {
+    label: 'demo',
+    key: 'demo',
+    type: 'push',
+    isIcon: false,
+    path: '/demo'
   }
 ]

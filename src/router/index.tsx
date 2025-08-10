@@ -6,6 +6,7 @@ import HomePage from "@/Layout/HomePage";
 import Note from "@/pages/Note";
 import NoteHome from "@/pages/Note/NoteHome";
 import Login from "@/pages/Login";
+import Demo from "@/pages/Demo";
 
 // 路由懒加载
 const AddNote = React.lazy(() => import("@/pages/Note/AddNote"));
@@ -37,6 +38,10 @@ const rootRouter: RouteObject[] = [
                         element: <AddNote />,
                     },
                 ]
+            },
+            {
+                path: "/demo",
+                element: <Demo />,
             },
             {
                 path: "/curriculumVitae",

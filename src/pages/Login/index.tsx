@@ -124,8 +124,7 @@ import {
   ProFormText,
 } from '@ant-design/pro-components';
 import { Form, Tabs, message, theme } from 'antd';
-import React, { useContext, useState } from 'react';
-import Demo from '../Demo';
+import { useContext, useState } from 'react';
 import { LayoutContext } from '@/App';
 
 
@@ -147,9 +146,6 @@ const Page = () => {
         position: 'relative'
       }}
     >
-      <div>
-        <Demo />
-      </div>
       <LoginFormPage
         form={form}
         backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"

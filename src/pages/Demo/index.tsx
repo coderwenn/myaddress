@@ -2,6 +2,8 @@ import { useContext } from 'react'
 
 import { Button } from 'antd';
 import { LayoutContext } from '@/App';
+import { NumberKeyboard } from 'react-vant';
+import styles from './index.module.less'
 
 function Demo() {
   const { value, funs } = useContext(LayoutContext);
@@ -26,7 +28,17 @@ function Demo() {
   }
 
   return (
-    <>123123</>
+    // <>123123</>
+    <div className={styles['number-keyboard']}>
+      <NumberKeyboard
+        theme='custom'
+        extraKey={['00', '.']}
+        closeButtonText='完成'
+        visible={true}
+        onBlur={() => { }}
+      />
+    </div>
+
   )
 }
 

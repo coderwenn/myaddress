@@ -54,3 +54,5 @@ export const barConfig: IConfig[] = [
     path: '/demo'
   }
 ]
+
+export const AI_PATH = 'http://localhost:3030/aiChat'

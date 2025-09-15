@@ -1,42 +1,46 @@
-import { SendOutlined } from '@ant-design/icons'
-import { Button, Input } from 'antd'
-import React, { memo, useState } from 'react'
+import React, {memo, useCallback, useState} from 'react'
+import {Sender} from '@ant-design/x';
+import {message} from "antd";
+
+import styles from './index.module.less'
 
 interface AiMesPushButtonProps {
     sendMes: (mes: string) => Promise<boolean>;
 }
 
-const AiMesPushButton: React.FC<AiMesPushButtonProps> = (props) => {
+const SendMessage: React.FC<AiMesPushButtonProps> = (props) => {
+    const [value, setValue] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const { sendMes } = props;
+    const {sendMes} = props;
 
-    const [message, setMessage] = useState('')
-
-    const handleSendMessage = async () => {
-        if (message.trim() === '') return;
-        await sendMes?.(message);
-        setMessage(''); // 清空输入框
-    };
+    const handleSendMessage = useCallback(
+        async () => {
+            if (value.trim() === '') return;
+            await sendMes?.(value);
+            setValue(''); // 清空输入框
+        }, [value, sendMes]
+    )
 
     return (
-        <div style={{ position: 'fixed', bottom: 0, backgroundColor: '#fff', zIndex: 1000, width: '84%', padding: '10px 20px', boxShadow: '0 -2px 4px rgba(0,0,0,0.1)' }}>
-            <Input
-                placeholder="有什么可以帮您的？"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onPressEnter={handleSendMessage}
-                suffix={
-                    <Button
-                        type="primary"
-                        icon={<SendOutlined />}
-                        onClick={handleSendMessage}
-                    >
-                        发送
-                    </Button>
-                }
+        <div className={styles['aiInput']}>
+            <Sender
+                loading={loading}
+                value={value}
+                onChange={(v) => {
+                    setValue(v);
+                }}
+                onSubmit={() => {
+                    handleSendMessage()
+                }}
+                onCancel={() => {
+                    setLoading(false);
+                    message.error('Cancel sending!');
+                }}
+                autoSize={{minRows: 2, maxRows: 6}}
             />
         </div>
     )
 }
 
-export default memo(AiMesPushButton)
+export default memo(SendMessage)

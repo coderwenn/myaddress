@@ -2,6 +2,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { barConfig } from "@/config";
 import './index.less'
 import { IConfig } from "@/types";
+import { Watermark } from 'antd';
 
 
 export default function HomePage() {
@@ -45,8 +46,9 @@ export default function HomePage() {
                     }
                 </nav>
             </header>
-            <>
+            <Watermark  content="123123">
+            
                 <Outlet />
-            </>
+            </Watermark>
         </div>
 }

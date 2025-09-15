@@ -138,6 +138,7 @@ const Page = () => {
   const [form] = Form.useForm();
   const [loginType, setLoginType] = useState<LoginType>('account');
   const { token } = theme.useToken();
+  
   return (
     <div
       style={{

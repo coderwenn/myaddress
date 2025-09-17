@@ -2,7 +2,7 @@ import { useState, useTransition } from 'react';
 import { Flex, Layout, Typography, message as mes } from 'antd';
 import Message from './components/Message';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { messageType } from './type'
+import { messageItem } from './type'
 import { getImgTask, getImgUrl } from './service';
 import SendMessage from './components/AiMesPushButton';
 import AiType from './components/AiType';
@@ -13,18 +13,22 @@ import style from './index.module.less';
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
+type messListType = {
+    text: Array<messageItem>
+    img: Array<messageItem>
+}
+
+type mltKey = keyof messListType
+
 const ChatPage = () => {
 
     const [, startTransition] = useTransition();
-    const [messList, setMesList] = useState<{
-        text: messageType[],
-        img: messageType[]
-    }>({
+    const [messList, setMesList] = useState<messListType>({
         text: [],
         img: []
     })
 
-    const [aiType, setAitype] = useState<'text' | 'img'>('text');
+    const [aiType, setAitype] = useState<mltKey>('text');
 
     const sendTxt = (message: string) => {
         // 这里可以添加发送消息的逻辑
@@ -93,7 +97,6 @@ const ChatPage = () => {
         })
         // 请求
         const taskRes = await getImgTask(message)
-
         if (taskRes) {
             // 轮询请求接口
             const time = setInterval(async () => {
@@ -136,7 +139,7 @@ const ChatPage = () => {
             <Layout style={{ minHeight: 'calc(100vh - 60px)', marginTop: 4, background: '#f5f5f5' }}>
                 <Sider width={200} theme="light">
                     <div style={{ padding: '16px', textAlign: 'center' }}>
-                        <Title level={4} style={{ margin: 0 }}>AIChat</Title>
+                        <Title level={4} style={{ margin: 0 }}>本地ai版本</Title>
                     </div>
                     <AiType callBack={setAitype}></AiType>
                 </Sider>

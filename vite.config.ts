@@ -4,6 +4,7 @@ import { resolve } from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  envDir: "env",
   plugins: [react()],
   // @符号
   resolve: {

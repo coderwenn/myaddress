@@ -12,6 +12,7 @@ import style from './index.module.less';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
+const url = import.meta.env.VITE_API_CHATURL
 
 type messListType = {
     text: Array<messageItem>
@@ -27,6 +28,8 @@ const ChatPage = () => {
         text: [],
         img: []
     })
+    // 查看环境
+    console.log('env', import.meta.env.VITE_API_CHATURL)
 
     const [aiType, setAitype] = useState<mltKey>('text');
 
@@ -40,7 +43,7 @@ const ChatPage = () => {
                 isUser: true,
             }]
         }))
-        fetchEventSource('http://localhost:3030/aiChat?message=' + message, {
+        fetchEventSource(`${url}/aiChat?message=` + message, {
             method: 'GET',
             headers: {
                 Accept: "text/event-stream",

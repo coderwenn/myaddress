@@ -1,4 +1,5 @@
 import api from '@/utils/netWork/index'
+
 export function addUser<T>(data: {
     username: string,
     password: string

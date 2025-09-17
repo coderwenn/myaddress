@@ -8,7 +8,6 @@ function factorial(n: number): number {
     if (n === 1) return 1
     return n * factorial(n - 1)
 }
-'mousemove'
 export function helper(str: string): number {
     const isr: Record<string, number> = {}
     for (const e of str) {

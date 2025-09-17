@@ -1,17 +1,17 @@
-import {useState, useTransition} from 'react';
-import {Flex, Layout, Typography, message as mes} from 'antd';
+import { useState, useTransition } from 'react';
+import { Flex, Layout, Typography, message as mes } from 'antd';
 import Message from './components/Message';
-import {fetchEventSource} from '@microsoft/fetch-event-source';
-import {messageType} from './type'
-import {getImgTask, getImgUrl} from './service';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { messageType } from './type'
+import { getImgTask, getImgUrl } from './service';
 import SendMessage from './components/AiMesPushButton';
 import AiType from './components/AiType';
-import {ChatContext} from "@/pages/Chat/ctx.ts";
+import { ChatContext } from "@/pages/Chat/ctx.ts";
 
 import style from './index.module.less';
 
-const {Header, Sider, Content} = Layout;
-const {Title} = Typography;
+const { Header, Sider, Content } = Layout;
+const { Title } = Typography;
 
 const ChatPage = () => {
 
@@ -54,9 +54,9 @@ const ChatPage = () => {
                                 text: [
                                     ...prevList.text,
                                     {
-                                        id: Date.now() + Math.random(), // 避免 ID 冲突
+                                        id: Date.now() + Math.random(),
                                         content: value,
-                                        isUser: false,  // AI 消息
+                                        isUser: false
                                     }
                                 ]
                             };
@@ -96,7 +96,7 @@ const ChatPage = () => {
 
         if (taskRes) {
             // 轮询请求接口
-            let time = setInterval(async () => {
+            const time = setInterval(async () => {
                 const imgRes = await getImgUrl(taskRes.data.output.task_id)
                 if (imgRes.data.usage?.image_count === 1) {
                     setMesList((prev) => {
@@ -133,20 +133,20 @@ const ChatPage = () => {
         <ChatContext.Provider value={{
             isSend: false
         }}>
-            <Layout style={{minHeight: 'calc(100vh - 60px)', marginTop: 4, background: '#f5f5f5'}}>
+            <Layout style={{ minHeight: 'calc(100vh - 60px)', marginTop: 4, background: '#f5f5f5' }}>
                 <Sider width={200} theme="light">
-                    <div style={{padding: '16px', textAlign: 'center'}}>
-                        <Title level={4} style={{margin: 0}}>AIChat</Title>
+                    <div style={{ padding: '16px', textAlign: 'center' }}>
+                        <Title level={4} style={{ margin: 0 }}>AIChat</Title>
                     </div>
                     <AiType callBack={setAitype}></AiType>
                 </Sider>
                 <Layout>
-                    <Header style={{padding: 0, background: '#fff'}}>
-                        <div style={{padding: '0 16px', height: '100%'}}>
-                            <Title level={4} style={{margin: 0, lineHeight: '64px'}}>{aiType}</Title>
+                    <Header style={{ padding: 0, background: '#fff' }}>
+                        <div style={{ padding: '0 16px', height: '100%' }}>
+                            <Title level={4} style={{ margin: 0, lineHeight: '64px' }}>{aiType}</Title>
                         </div>
                     </Header>
-                    <Content style={{margin: '16px', backgroundColor: '#f9f9f9'}}>
+                    <Content style={{ margin: '16px', backgroundColor: '#f9f9f9' }}>
                         <div className={style.messageItem}>
                             <Flex gap="middle" vertical>
                                 {(messList[aiType] ?? []).map(
@@ -154,18 +154,21 @@ const ChatPage = () => {
                                         return (
                                             <Message
                                                 key={e.id}
-                                                {...{...e, type: e.isUser ? 'user' : 'assistant', contentType: aiType}}
+                                                {...{ ...e, type: e.isUser ? 'user' : 'assistant', contentType: aiType }}
                                             />
                                         )
                                     })
                                 }
                             </Flex>
                         </div>
-                        <SendMessage sendMes={
-                            async (e) => {
-                                await aiPush(e)
-                                return true;
-                            }}></SendMessage>
+                        <SendMessage
+                            sendMes={
+                                async (e) => {
+                                    await aiPush(e)
+                                    return true;
+                                }}
+                        >
+                        </SendMessage>
                     </Content>
                 </Layout>
             </Layout>

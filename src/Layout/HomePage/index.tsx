@@ -18,7 +18,8 @@ export default function HomePage() {
         }
     }
 
-    return <div className="home-container">
+    return (
+        <div className="home-container">
             {/* 个人介绍部分 */}
             <header className="header">
                 <nav>
@@ -46,9 +47,10 @@ export default function HomePage() {
                     }
                 </nav>
             </header>
-            <Watermark  content="123123">
-            
+            <Watermark content="123123">
+
                 <Outlet />
             </Watermark>
         </div>
+    )
 }

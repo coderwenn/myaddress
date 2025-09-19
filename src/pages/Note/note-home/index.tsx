@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { Input, Button, Menu, Dropdown, Space } from "antd";
 import { PlusOutlined, SearchOutlined, UnorderedListOutlined, AppstoreOutlined, DownOutlined } from "@ant-design/icons";
-import NoteCard from "@/pages/Note/components/NoteCard";
+import NoteCard from "@/pages/note/components/NoteCard";
 import { NoteHomeTags, notes } from "./const";
 
 import styles from "../index.module.less";

@@ -6,7 +6,7 @@ import { messageItem } from './type'
 import { getImgTask, getImgUrl } from './service';
 import SendMessage from './components/AiMesPushButton';
 import AiType from './components/AiType';
-import { ChatContext } from "@/pages/Chat/ctx.ts";
+import { ChatContext } from "@/pages/chat/ctx";
 
 import style from './index.module.less';
 

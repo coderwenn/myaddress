@@ -9,7 +9,7 @@ import Login from "@/pages/login";
 import Demo from "@/pages/demo";
 
 // 路由懒加载
-const AddNote = React.lazy(() => import("@/pages/note/AddNote"));
+const AddNote = React.lazy(() => import("@/pages/note/add-note"));
 const Chat = React.lazy(() => import("@/pages/chat"));
 
 const rootRouter: RouteObject[] = [

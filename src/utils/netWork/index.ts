@@ -1,4 +1,6 @@
 import axios from "axios";
+import Cookies from 'js-cookie';
+
 
 const api = axios.create({
     baseURL: 'http://localhost:3030',
@@ -7,8 +9,9 @@ const api = axios.create({
 
 // 请求拦截器
 api.interceptors.request.use((config) => {
+    const token = Cookies.get('AICHAT') || localStorage.getItem('token');
     // 添加token
-    config.headers.Authorization = localStorage.getItem('token');
+    config.headers.Authorization = `Bearer ${token}`;
     return config
 })
 

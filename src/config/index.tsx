@@ -56,3 +56,6 @@ export const barConfig: IConfig[] = [
 ]
 
 export const AI_PATH = 'http://localhost:3030/aiChat'
+
+// 需要身份权限的菜单
+export const AUTH_MENU = ['/note', '/chat']

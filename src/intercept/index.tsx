@@ -34,7 +34,6 @@ const Intercept: FC<{
     }
 
     useEffect(() => {
-
         needLogin()
     }, [navigate, location])
 

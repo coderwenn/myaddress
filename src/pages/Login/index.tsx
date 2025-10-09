@@ -12,7 +12,11 @@ import {
 } from '@ant-design/pro-components';
 import { Form, Tabs, message, theme } from 'antd';
 import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import { LayoutContext } from '@/App';
+import { getUserToken } from './service'
+
 
 type LoginType = 'phone' | 'account';
 
@@ -23,6 +27,22 @@ const Page = () => {
   const [form] = Form.useForm();
   const [loginType, setLoginType] = useState<LoginType>('account');
   const { token } = theme.useToken();
+  const navigate = useNavigate();
+
+  const login = async (values: any) => {
+    const res = await getUserToken(values)
+    if (res.code === 200) {
+      message.success('登录成功');
+      // 设置token
+      localStorage.setItem('ai-chat', res.data.token);
+      // 设置cookie
+      Cookies.set('AICHAT', res.data.token, { expires: 7 });
+      // 跳转到首页
+      navigate('/')
+    } else {
+      message.error('登录失败');
+    }
+  };
 
   return (
     <div
@@ -33,6 +53,7 @@ const Page = () => {
       }}>
       <LoginFormPage
         form={form}
+        onFinish={login}
         backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"
         logo="https://github.githubassets.com/favicons/favicon.png"
         backgroundVideoUrl="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
@@ -42,6 +63,11 @@ const Page = () => {
           backdropFilter: 'blur(4px)',
         }}
         subTitle="coder的网站"
+        initialValues={{
+          username: 'wenn',
+          password: 'qianxi11',
+
+        }}
         actions={
           <div
             style={{

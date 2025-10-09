@@ -1,26 +1,35 @@
 import React from 'react';
 import { Github } from '@icon-park/react';
 import img from '@/file/images/图片.jpg'
+import request from '@/utils/netWork';
 
 import './index.less';
 
 
 const Home: React.FC = () => {
+
+    // test login info
+    async function testUserInfo() {
+        const res = await request.post(
+            '/user/getUserList'
+        )
+        console.log(res)
+    }
     return (
         <div className='mesBox'>
             <section className="intro-section">
                 <div className="intro-content">
                     <h1>你好，我是温千禧</h1>
                     <p>专业的web全栈开发</p>
-                    <button className="contact-btn">查看作品</button>
+                    <button className="contact-btn" onClick={testUserInfo}>查看作品</button>
                 </div>
                 <div className="profile-image">
                     <img src={img} alt="个人照片" />
                 </div>
-            </section>
+            </section >
 
             {/* 专业技能部分 */}
-            <section className="skills-section">
+            <section className="skills-section" >
                 <h2>专业技能</h2>
                 <div className="skills-grid">
                     <div className="skill-card">
@@ -36,10 +45,10 @@ const Home: React.FC = () => {
                         <p>注重用户体验，能创造直观易用的交互界面</p>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* 精选作品部分 */}
-            <section className="portfolio-section">
+            <section className="portfolio-section" >
                 <h2>精选作品</h2>
                 <div className="portfolio-grid">
                     <div className="portfolio-item">
@@ -67,10 +76,10 @@ const Home: React.FC = () => {
                         <a href="#" className="view-more">了解更多</a>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* 关于我部分 */}
-            <section className="about-section">
+            < section className="about-section" >
                 <h2>关于我</h2>
                 <p>我是一名拥有多年经验的全栈开发者和UI设计师，专注于创造美观且实用的数字产品。我热爱将创意转化为现实，并持续学习新技术来提升自己。</p>
                 <div className="specialties">
@@ -79,10 +88,10 @@ const Home: React.FC = () => {
                     <span>前端开发</span>
                     <span>后端开发</span>
                 </div>
-            </section>
+            </ section>
 
             {/* 联系方式部分 */}
-            <section className="contact-section">
+            <section className="contact-section" >
                 <h2>联系方式</h2>
                 <div className="social-links">
                     <Github theme="outline" size="24" fill="#333" />
@@ -92,7 +101,7 @@ const Home: React.FC = () => {
                 </div>
                 <button className="contact-btn">发送邮件</button>
             </section>
-        </div>
+        </div >
     );
 };
 

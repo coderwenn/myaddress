@@ -1,23 +1,26 @@
 import { create } from 'zustand'
 // 同步用户信息到本地缓存
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
+
+type userInfoType = {
+    name: string,
+    avatar: string,
+}
 
 
 const useUserInfo = create(
-    persist<{
-        userInfo: any,
-        setUserInfo: (userInfo: any) => void,
-    }>(
-        (set) => (
-            {
-                userInfo: {},
-                setUserInfo: (userInfo: any) => {
-                    set({ userInfo })
-                }
+    persist<userInfoType>(
+        (set, get) => {
+            console.log('get', get(),set);
+            return {
+                name: '',
+                avatar: '',
             }
-        ), {
-        name: 'userInfo'
-    }
+        },
+        {
+            name: 'userInfo',
+            storage: createJSONStorage(() => localStorage),
+        }
     )
 )
 

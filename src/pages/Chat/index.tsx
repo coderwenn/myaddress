@@ -142,7 +142,7 @@ const ChatPage = () => {
             <Layout style={{ minHeight: 'calc(100vh - 60px)', marginTop: 4, background: '#f5f5f5' }}>
                 <Sider width={200} theme="light">
                     <div style={{ padding: '16px', textAlign: 'center' }}>
-                        <Title level={4} style={{ margin: 0 }}>本地ai版本</Title>
+                        <Title level={4} style={{ margin: 0 }}>aiChat</Title>
                     </div>
                     <AiType callBack={setAitype}></AiType>
                 </Sider>

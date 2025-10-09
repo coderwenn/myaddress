@@ -5,10 +5,14 @@ const api = axios.create({
     timeout: 10000,
 })
 
+// 请求拦截器
 api.interceptors.request.use((config) => {
+    // 添加token
+    config.headers.Authorization = localStorage.getItem('token');
     return config
 })
 
+// 响应拦截器
 api.interceptors.response.use((response) => {
     return response.data
 }, (error) => {

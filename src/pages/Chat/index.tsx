@@ -139,20 +139,20 @@ const ChatPage = () => {
         <ChatContext.Provider value={{
             isSend: false
         }}>
-            <Layout style={{ minHeight: 'calc(100vh - 60px)', marginTop: 4, background: '#f5f5f5' }}>
+            <Layout className='min-h-[calc(100vh-60px)] mt-4 bg-[#f5f5f5]'>
                 <Sider width={200} theme="light">
-                    <div style={{ padding: '16px', textAlign: 'center' }}>
-                        <Title level={4} style={{ margin: 0 }}>aiChat</Title>
+                    <div className='p-[16px] text-center'>
+                        <Title level={4} className='m-0'>aiChat</Title>
                     </div>
                     <AiType callBack={setAitype}></AiType>
                 </Sider>
                 <Layout>
-                    <Header style={{ padding: 0, background: '#fff' }}>
+                    <Header className='p-0 bg-[#fff]' >
                         <div style={{ padding: '0 16px', height: '100%' }}>
                             <Title level={4} style={{ margin: 0, lineHeight: '64px' }}>{aiType}</Title>
                         </div>
                     </Header>
-                    <Content style={{ margin: '16px', backgroundColor: '#f9f9f9' }}>
+                    <Content className='m-16 bg-[#f9f9f9]'>
                         <div className={style.messageItem}>
                             <Flex gap="middle" vertical>
                                 {(messList[aiType] ?? []).map(

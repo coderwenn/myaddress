@@ -1,7 +1,7 @@
-import {createContext} from "react";
+import { createContext } from "react";
 
 interface IChatCtx {
-    isSend: boolen
+    isSend: boolean
 }
 
 export const ChatContext = createContext<IChatCtx>({

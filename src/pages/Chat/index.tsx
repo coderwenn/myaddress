@@ -1,5 +1,6 @@
 import { useState, useTransition } from 'react';
 import { Flex, Layout, Typography, message as mes } from 'antd';
+import { Welcome } from '@ant-design/x';
 import Message from './components/Message';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { messageItem } from './type'
@@ -7,8 +8,10 @@ import { getImgTask, getImgUrl } from './service';
 import SendMessage from './components/AiMesPushButton';
 import AiType from './components/AiType';
 import { ChatContext } from "@/pages/chat/ctx";
+import useChatConfig from './hooks';
 
 import style from './index.module.less';
+import { getAiMessage, getMessage } from './utils';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -21,70 +24,44 @@ type messListType = {
 
 type mltKey = keyof messListType
 
-const ChatPage = () => {
+const abortController = new AbortController();
 
+const ChatPage = () => {
     const [, startTransition] = useTransition();
     const [messList, setMesList] = useState<messListType>({
         text: [],
         img: []
     })
+    const { fetchEventData } = useChatConfig();
     // 查看环境
-    console.log('env', import.meta.env.VITE_API_CHATURL)
-
     const [aiType, setAitype] = useState<mltKey>('text');
-
     const sendTxt = (message: string) => {
         // 这里可以添加发送消息的逻辑
         setMesList(prev => ({
             ...prev,
-            text: [...prev.text, {
-                id: Date.now() + Math.random(),
-                content: message,
-                isUser: true,
-            }]
+            text: [...prev.text, getMessage(message)]
         }))
-        fetchEventSource(`${url}/aiChat?message=` + message, {
-            method: 'GET',
-            headers: {
-                Accept: "text/event-stream",
-            },
-            onmessage(event) {
-                const value = JSON.parse(event?.data)?.content
+        const aiMessage = getAiMessage('');
+        fetchEventData(
+            `${url}/ai/aiChat?message=` + message,
+            (data) => {
+                const value = JSON.parse(data)?.content
+                aiMessage.content += value;
                 startTransition(() => {
                     setMesList(prevList => {
-                        // 查看最后一条消息是否是用户发送的
-                        const isUserLast = prevList.text.length > 0 && prevList.text[prevList.text.length - 1].isUser;
-                        if (isUserLast) {
-                            // 添加 AI 的第一条回复
-                            return {
-                                img: prevList.img,
-                                text: [
-                                    ...prevList.text,
-                                    {
-                                        id: Date.now() + Math.random(),
-                                        content: value,
-                                        isUser: false
-                                    }
-                                ]
-                            };
-                        } else {
-                            // 更新最后一条 AI 消息
-                            const newMessages = [...prevList.text];
-                            newMessages[newMessages.length - 1] = {
-                                ...newMessages[newMessages.length - 1],
-                                content: newMessages[newMessages.length - 1].content + value
-                            };
-                            return {
-                                img: prevList.img,
-                                text: newMessages
-                            };
+                        return {
+                            ...prevList,
+                            text: prevList.text.find(item =>
+                                item.id === aiMessage.id) ?
+                                prevList.text.map(item => item.id === aiMessage.id ? aiMessage : item) : [...prevList.text, aiMessage]
                         }
-                    });
+                    })
                 })
             },
-            onclose() {
+            (error) => {
+                console.error(`fetchEventData: ${error}`)
             }
-        })
+        )
     }
 
     const sendImg = async (message: string) => {
@@ -153,6 +130,12 @@ const ChatPage = () => {
                         </div>
                     </Header>
                     <Content className='m-16 bg-[#f9f9f9]'>
+                        {/* 欢迎区域 */}
+                        <Welcome
+                            icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
+                            title="Welcome to aiChat"
+                            description="Chat with aiChat, get help with your questions."
+                        />
                         <div className={style.messageItem}>
                             <Flex gap="middle" vertical>
                                 {(messList[aiType] ?? []).map(

@@ -34,7 +34,7 @@ const Page = () => {
     if (res.code === 200) {
       message.success('登录成功');
       // 设置token
-      localStorage.setItem('ai-chat', res.data.token);
+      localStorage.setItem('aiChat', res.data.token);
       // 设置cookie
       Cookies.set('AICHAT', res.data.token, { expires: 7 });
       // 跳转到首页

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { messageItem } from '../type';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 type messListType = {
     text: Array<messageItem>
     img: Array<messageItem>
 }
 
 type mltKey = keyof messListType
-
+const abortController = new AbortController();
 const useChatConfig = () => {
     const [messList, setMesList] = useState<messListType>({
         text: [],
@@ -25,6 +26,32 @@ const useChatConfig = () => {
             }]
         }))
     }
+    function fetchEventData(
+        url: string,
+        onSucceed: (data: string) => void,
+        onError: (error: Error) => void
+    ) {
+        fetchEventSource(
+            url, {
+            method: 'GET',
+            headers: {
+                Accept: "text/event-stream",
+            },
+            signal: abortController.signal,
+            onmessage(event) {
+                if (event.data === '[DONE]') {
+                    abortController.abort();
+                    return;
+                }
+                onSucceed(event.data)
+                console.log(event)
+            },
+            onerror(error) {
+                console.error(`fetchEventData: ${error}`)
+                onError(error);
+            }
+        })
+    }
 
 
     return {
@@ -32,7 +59,8 @@ const useChatConfig = () => {
         setMesList,
         aiType,
         setAitype,
-        sendMessage
+        sendMessage,
+        fetchEventData
     }
 
 }

@@ -1,5 +1,5 @@
 export type messageItem = {
-    id: number,
+    id: number | string,
     content: string,
     isUser: boolean,
 }

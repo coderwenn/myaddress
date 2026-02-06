@@ -22,7 +22,7 @@ const AiType: React.FC<AiTypeProps> = (props) => {
         <Menu
             selectedKeys={[messageType]}
             onSelect={({ key }) => handleTabChange(key as 'text' | 'img')}
-            mode="inline"
+            mode="horizontal"
         >
             {conversationTabs.map((tab) => (
                 <Menu.Item

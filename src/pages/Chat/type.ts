@@ -45,3 +45,18 @@ export type imgSuccessItem = {
         image_count: number
     }
 }
+
+export type conversationItem = {
+    title: string,
+    content: string,
+    ai_response: string,
+}
+
+
+export type conversationListType = {
+    id: number,
+    user_id: number,
+    title: string,
+    created_at: string,
+    updated_at: string,
+}

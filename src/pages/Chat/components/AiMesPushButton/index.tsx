@@ -1,8 +1,6 @@
-import React, {memo, useCallback, useState} from 'react'
-import {Sender} from '@ant-design/x';
-import {message} from "antd";
-
-import styles from './index.module.less'
+import React, { memo, useCallback, useState } from 'react'
+import { Sender } from '@ant-design/x';
+import { message } from "antd";
 
 interface AiMesPushButtonProps {
     sendMes: (mes: string) => Promise<boolean>;
@@ -12,7 +10,7 @@ const SendMessage: React.FC<AiMesPushButtonProps> = (props) => {
     const [value, setValue] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
 
-    const {sendMes} = props;
+    const { sendMes } = props;
 
     const handleSendMessage = useCallback(
         async () => {
@@ -23,7 +21,9 @@ const SendMessage: React.FC<AiMesPushButtonProps> = (props) => {
     )
 
     return (
-        <div className={styles['aiInput']}>
+        <div
+            className='w-full'
+        >
             <Sender
                 loading={loading}
                 value={value}
@@ -37,7 +37,7 @@ const SendMessage: React.FC<AiMesPushButtonProps> = (props) => {
                     setLoading(false);
                     message.error('Cancel sending!');
                 }}
-                autoSize={{minRows: 2, maxRows: 6}}
+                autoSize={{ minRows: 2, maxRows: 6 }}
             />
         </div>
     )

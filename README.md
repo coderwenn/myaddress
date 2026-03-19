@@ -1,2 +1,1 @@
-# react + typescript + vite 个人博客项目
-
+ai练习项目

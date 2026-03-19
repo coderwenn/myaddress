@@ -9,10 +9,11 @@ export function getMessage(content: string): messageItem {
     }
 }
 
-export function getAiMessage(content: string): messageItem {
+export function getAiMessage(content: string, options?: { loading?: boolean }): messageItem {
     return {
         id: crypto.randomUUID(),
         content,
         isUser: false,
+        loading: options?.loading,
     }
 }

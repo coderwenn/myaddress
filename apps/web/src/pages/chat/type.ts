@@ -2,6 +2,7 @@ export type messageItem = {
     id: number | string,
     content: string,
     isUser: boolean,
+    loading?: boolean,
 }
 
 export enum MESSAGE_TYPE {

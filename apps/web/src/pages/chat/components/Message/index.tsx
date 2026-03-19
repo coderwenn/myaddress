@@ -10,16 +10,23 @@ interface IProps {
 }
 
 const Message: React.FC<IProps> = (props) => {
-    const { type, content, contentType } = props;
+    const { type, content, contentType, loading } = props;
 
     const renderingTemplate = useMemo(() => {
         let dom = null
         switch (contentType) {
             case MESSAGE_TYPE.TEXT:
-                dom = <Text content={content} />
+                dom = <Text content={content || (loading ? '...' : '')} />
                 break;
             case MESSAGE_TYPE.IMGAGE:
-                dom = <img width={700} src={content} alt="" />
+                if (loading) {
+                    dom = <div>Generating image...</div>
+                } else if (!content) {
+                    dom = <div>No image available.</div>
+                } else {
+                    const isUrl = /^https?:\/\//.test(content);
+                    dom = isUrl ? <img width={700} src={content} alt="" /> : <div>{content}</div>
+                }
                 break;
             default:
                 dom = <>不匹配类型</>

@@ -1,21 +1,17 @@
-import { useState, useTransition } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, Flex, Layout, Typography, message as mes, Modal, Form, Input } from 'antd';
 import { Welcome } from '@ant-design/x';
 import Message from './components/Message';
 import { messageItem } from './type'
-import { getImgTask, getImgUrl } from './service';
 import SendMessage from './components/AiMesPushButton';
 import AiType from './components/AiType';
 import { ChatContext } from "@/pages/chat/ctx";
 import useChatConfig from './hooks';
 
-import { getAiMessage, getMessage } from './utils';
 import DialogueHistory from './components/dialogue-hstory';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
-const url = import.meta.env.VITE_API_CHATURL
-
 type messListType = {
 	text: Array<messageItem>
 	img: Array<messageItem>
@@ -24,99 +20,36 @@ type messListType = {
 type mltKey = keyof messListType
 
 const ChatPage = () => {
-	const [, startTransition] = useTransition();
-	const [messList, setMesList] = useState<messListType>({
-		text: [],
-		img: []
-	})
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [form] = Form.useForm();
-	const { fetchEventData,
+	const {
 		addNewConversation,
 		conversationList,
+		activeConversationId,
+		setActiveConversationId,
+		messagesByConversation,
+		sendTextMessage,
+		sendImageMessage,
+		isSending,
+		stopSending,
+		retryLast,
+		hasLastPrompt,
 	} = useChatConfig();
 	// 查看环境
 	const [aiType, setAitype] = useState<mltKey>('text');
-	const sendTxt = (message: string) => {
-		// 这里可以添加发送消息的逻辑
-		setMesList(prev => ({
-			...prev,
-			text: [...prev.text, getMessage(message)]
-		}))
-		const aiMessage = getAiMessage('');
-		fetchEventData(
-			`${url}/ai/aiChat?message=` + message,
-			(data) => {
-				const value = JSON.parse(data)?.content
-				aiMessage.content += value;
-				startTransition(() => {
-					setMesList(prevList => {
-						return {
-							...prevList,
-							text: prevList.text.find(item =>
-								item.id === aiMessage.id) ?
-								prevList.text.map(item => item.id === aiMessage.id ? aiMessage : item) : [...prevList.text, aiMessage]
-						}
-					})
-				})
-			},
-			(error) => {
-				console.error(`fetchEventData: ${error}`)
-			}
-		)
-	}
-
-	const sendImg = async (message: string) => {
-		// 这里可以添加发送消息的逻辑
-		setMesList({
-			...messList,
-			img: [...messList.img, {
-				id: messList.img.length + 1,
-				content: message,
-				isUser: true,
-			}]
-
-		})
-		// 请求
-		const taskRes = await getImgTask(message)
-		if (taskRes) {
-			// 轮询请求接口
-			const time = setInterval(async () => {
-				const imgRes = await getImgUrl(taskRes.data.output.task_id)
-				if (imgRes.data.usage?.image_count === 1) {
-					setMesList((prev) => {
-						return {
-							...prev,
-							img: [...prev.img, {
-								id: prev.img.length + 1,
-								content: imgRes.data.output.results[0].url,
-								isUser: false,
-							}]
-						}
-					})
-					clearInterval(time)
-				}
-			}, 2000)
-		} else {
-			mes.warning(taskRes)
-		}
-
-	}
-
-	const sendAiFun = {
-		sendTxt,
-		sendImg
-	}
 
 	async function aiPush(message: string) {
 		if (!aiType) return;
-		const ket = aiType === 'text' ? 'sendTxt' : 'sendImg';
-		await sendAiFun[ket]?.(message)
+		if (aiType === 'text') {
+			await sendTextMessage(message, activeConversationId);
+		} else {
+			await sendImageMessage(message, activeConversationId);
+		}
 	}
 
 	// 切换对话
-	const handleTabChange = (key: string) => {
-		console.log(key, '1231231')
+	const handleTabChange = (id: number) => {
+		setActiveConversationId(id);
 	}
 	// 新增对话
 	const addConversation = () => {
@@ -141,9 +74,18 @@ const ChatPage = () => {
 		setIsModalVisible(false);
 	}
 
+	const currentMessages: messListType = useMemo(() => {
+		if (!activeConversationId) return { text: [], img: [] };
+		return messagesByConversation[String(activeConversationId)] ?? { text: [], img: [] };
+	}, [activeConversationId, messagesByConversation])
+
+	const isLoading = isSending(activeConversationId, aiType);
+	const messageList = currentMessages[aiType] ?? [];
+	const canRetry = hasLastPrompt(activeConversationId, aiType);
+
 	return (
 		<ChatContext.Provider value={{
-			isSend: false
+			isSend: isLoading
 		}}>
 			<Layout className='min-h-[calc(100vh-60px)] mt-1 bg-[#f5f5f5]'>
 				<Sider width={200} theme="light">
@@ -158,6 +100,7 @@ const ChatPage = () => {
 						{/* <MessageList callBack={handleTabChange} /> */}
 						<DialogueHistory
 							conversationList={conversationList}
+							activeId={activeConversationId}
 							callBack={(id) => {
 								handleTabChange(id)
 							}} />
@@ -172,14 +115,16 @@ const ChatPage = () => {
 					</Header>
 					<Content className='m-1 bg-[#f9f9f9]'>
 						{/* 欢迎区域 */}
-						<Welcome
-							icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
-							title="Welcome to wennChat"
-							description="Chat with wennChat, get help with your questions."
-						/>
+						{messageList.length === 0 ? (
+							<Welcome
+								icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
+								title="Welcome to wennChat"
+								description="Chat with wennChat, get help with your questions."
+							/>
+						) : null}
 						<div className='h-[calc(100vh-280px)] overflow-y-auto p-[24px] position-relative' >
 							<Flex gap="middle" vertical>
-								{(messList[aiType] ?? []).map(
+								{messageList.map(
 									e => {
 										return (
 											<Message
@@ -192,6 +137,7 @@ const ChatPage = () => {
 							</Flex>
 						</div>
 						<SendMessage
+							loading={isLoading}
 							sendMes={
 								async (e) => {
 									await aiPush(e)
@@ -199,6 +145,14 @@ const ChatPage = () => {
 								}}
 						>
 						</SendMessage>
+						<Flex justify="end" gap="small" className="mt-2">
+							<Button disabled={!isLoading} onClick={() => stopSending(activeConversationId, aiType)}>
+								Stop
+							</Button>
+							<Button disabled={isLoading || !canRetry} onClick={() => retryLast(activeConversationId, aiType)}>
+								Retry
+							</Button>
+						</Flex>
 					</Content>
 				</Layout>
 			</Layout>

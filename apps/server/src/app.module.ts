@@ -6,8 +6,10 @@ import { ChatModule } from './chat/chat.module';
 import { dbConfig } from './database.config';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(dbConfig), ChatModule],
+  imports: [
+    TypeOrmModule.forRoot(dbConfig),
+    ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

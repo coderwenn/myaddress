@@ -6,6 +6,7 @@ import { ChatModule } from './chat/chat.module';
 import { dbConfig } from './database.config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ApiKeysModule } from './api-keys/api-keys.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
     ChatModule,
     UsersModule,
     AuthModule,
+    ApiKeysModule,
   ],
   controllers: [AppController],
   providers: [AppService],

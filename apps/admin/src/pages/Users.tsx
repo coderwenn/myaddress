@@ -2,6 +2,7 @@ import { PageContainer, ProFormSelect, ProFormSwitch, ProFormText, ProTable, Mod
 import type { ProColumns } from '@ant-design/pro-components';
 import { Button, message } from 'antd';
 import { useRef, useState } from 'react';
+import api from '@coderwenn/http';
 
 type UserStatus = 'ACTIVE' | 'INACTIVE';
 
@@ -70,15 +71,13 @@ export default function UsersPage() {
           type="link"
           danger
           onClick={async () => {
-            const res = await fetch(`${API_BASE}/${record.id}`, {
-              method: 'DELETE',
-            });
-            if (res.ok) {
-              message.success('删除成功');
-              actionRef.current?.reload?.();
-            } else {
-              message.error('删除失败');
-            }
+          const res = await api.delete(`${API_BASE}/${record.id}`);
+          if (res) {
+            message.success('删除成功');
+            actionRef.current?.reload?.();
+          } else {
+            message.error('删除失败');
+          }
           }}
         >
           删除
@@ -109,11 +108,10 @@ export default function UsersPage() {
         search={false}
         actionRef={actionRef}
         request={async () => {
-          const res = await fetch(API_BASE);
-          const data = await res.json();
+          const data = await api.get(API_BASE);
           return {
             data: data.data ?? [],
-            success: res.ok,
+            success: true,
           };
         }}
       />
@@ -151,12 +149,12 @@ export default function UsersPage() {
           };
           const url = editing ? `${API_BASE}/${editing.id}` : API_BASE;
           const method = editing ? 'PUT' : 'POST';
-          const res = await fetch(url, {
+          const res = await api.request({
+            url,
             method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+            data: payload,
           });
-          if (res.ok) {
+          if (res) {
             message.success('保存成功');
             actionRef.current?.reload?.();
             return true;

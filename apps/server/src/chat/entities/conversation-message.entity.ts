@@ -1,0 +1,32 @@
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Conversation } from './conversation.entity';
+
+@Entity({ name: 'conversation_messages' })
+export class ConversationMessage {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'text', nullable: true })
+  content?: string;
+
+  @Column({ type: 'text', nullable: true })
+  ai_response?: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_at!: Date;
+
+  @Column()
+  conversation_id!: number;
+
+  @ManyToOne(() => Conversation, (conversation) => conversation.messages, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'conversation_id' })
+  conversation!: Conversation;
+}

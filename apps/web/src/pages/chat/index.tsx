@@ -7,6 +7,7 @@ import SendMessage from './components/AiMesPushButton';
 import AiType from './components/AiType';
 import { ChatContext } from "@/pages/chat/ctx";
 import useChatConfig from './hooks';
+import { useNavigate } from 'react-router-dom';
 
 import DialogueHistory from './components/dialogue-hstory';
 
@@ -22,6 +23,7 @@ type mltKey = keyof messListType
 const ChatPage = () => {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [form] = Form.useForm();
+	const navigate = useNavigate();
 	const {
 		addNewConversation,
 		conversationList,
@@ -91,6 +93,9 @@ const ChatPage = () => {
 				<Sider width={200} theme="light">
 					<div className='p-[16px] text-center'>
 						<Title level={4} className='m-0'>wennChat</Title>
+					</div>
+					<div className='p-[16px] flex justify-center'>
+						<Button onClick={() => navigate('/login')}>去登录</Button>
 					</div>
 					{/* 新增对话 */}
 					<div className='p-[16px] flex justify-center'>

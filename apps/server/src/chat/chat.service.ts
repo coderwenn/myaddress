@@ -1,19 +1,8 @@
-import { Injectable } from '@nestjs/common';
-
-type Conversation = {
-  id: number;
-  user_id: number;
-  title: string;
-  created_at: string;
-  updated_at: string;
-};
-
-type ConversationMessage = {
-  id: string;
-  content?: string;
-  ai_response?: string;
-  created_at: string;
-};
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Conversation } from './entities/conversation.entity';
+import { ConversationMessage } from './entities/conversation-message.entity';
 
 type ImageTask = {
   id: string;
@@ -24,59 +13,58 @@ type ImageTask = {
 
 @Injectable()
 export class ChatService {
-  private conversations: Conversation[] = [];
-  private messages: Record<number, ConversationMessage[]> = {};
   private imageTasks: Record<string, ImageTask> = {};
-  private nextConversationId = 1;
 
-  listConversations() {
-    return {
-      list: this.conversations,
-      total: this.conversations.length,
-    };
+  constructor(
+    @InjectRepository(Conversation)
+    private readonly conversationRepo: Repository<Conversation>,
+    @InjectRepository(ConversationMessage)
+    private readonly messageRepo: Repository<ConversationMessage>,
+  ) {}
+
+  async listConversations() {
+    const [list, total] = await this.conversationRepo.findAndCount({
+      order: { updated_at: 'DESC' },
+    });
+    return { list, total };
   }
 
-  createConversation(payload: { title: string; content?: string; ai_response?: string }) {
-    const now = new Date().toISOString();
-    const conversation: Conversation = {
-      id: this.nextConversationId++,
-      user_id: 1,
+  async createConversation(payload: { title: string; content?: string; ai_response?: string }) {
+    const conversation = this.conversationRepo.create({
       title: payload.title || 'New Conversation',
-      created_at: now,
-      updated_at: now,
-    };
-    this.conversations.unshift(conversation);
-    if (!this.messages[conversation.id]) {
-      this.messages[conversation.id] = [];
-    }
+      user_id: 1,
+    });
+    const saved = await this.conversationRepo.save(conversation);
     if (payload.content || payload.ai_response) {
-      this.messages[conversation.id].push({
-        id: crypto.randomUUID(),
+      const message = this.messageRepo.create({
         content: payload.content,
         ai_response: payload.ai_response,
-        created_at: now,
+        conversation_id: saved.id,
       });
+      await this.messageRepo.save(message);
     }
-    return { id: conversation.id };
+    return { id: saved.id };
   }
 
-  getConversationDetail(conversationId: number) {
-    return {
-      list: this.messages[conversationId] ?? [],
-    };
+  async getConversationDetail(conversationId: number) {
+    const messages = await this.messageRepo.find({
+      where: { conversation_id: conversationId },
+      order: { created_at: 'ASC' },
+    });
+    return { list: messages };
   }
 
-  appendConversationMessage(conversationId: number, content: string, aiResponse: string) {
-    const now = new Date().toISOString();
-    if (!this.messages[conversationId]) {
-      this.messages[conversationId] = [];
+  async appendConversationMessage(conversationId: number, content: string, aiResponse: string) {
+    const exists = await this.conversationRepo.findOne({ where: { id: conversationId } });
+    if (!exists) {
+      throw new NotFoundException('Conversation not found');
     }
-    this.messages[conversationId].push({
-      id: crypto.randomUUID(),
+    const message = this.messageRepo.create({
       content,
       ai_response: aiResponse,
-      created_at: now,
+      conversation_id: conversationId,
     });
+    await this.messageRepo.save(message);
   }
 
   createImageTask(prompt: string) {

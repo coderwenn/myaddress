@@ -7,24 +7,24 @@ export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post('conversation/list')
-  getConversationList(@Body() body: { conversation_id?: number }) {
+  async getConversationList(@Body() body: { conversation_id?: number }) {
     if (body?.conversation_id) {
       return {
         code: '200',
-        data: this.chatService.getConversationDetail(body.conversation_id),
+        data: await this.chatService.getConversationDetail(body.conversation_id),
         msg: 'ok',
       };
     }
     return {
       code: '200',
-      data: this.chatService.listConversations(),
+      data: await this.chatService.listConversations(),
       msg: 'ok',
     };
   }
 
   @Post('conversation/create')
-  createConversation(@Body() body: { title: string; content?: string; ai_response?: string }) {
-    const result = this.chatService.createConversation(body);
+  async createConversation(@Body() body: { title: string; content?: string; ai_response?: string }) {
+    const result = await this.chatService.createConversation(body);
     return {
       code: '200',
       data: result,
@@ -44,13 +44,22 @@ export class ChatController {
     let index = 0;
     const conversationIdNumber = Number(conversationId);
 
-    const timer = setInterval(() => {
+    let isSaving = false;
+    const timer = setInterval(async () => {
       if (index >= reply.length) {
         clearInterval(timer);
         res.write(`data: [DONE]\n\n`);
         res.end();
         if (!Number.isNaN(conversationIdNumber)) {
-          this.chatService.appendConversationMessage(conversationIdNumber, safeMessage, reply);
+          try {
+            if (isSaving) return;
+            isSaving = true;
+            await this.chatService.appendConversationMessage(conversationIdNumber, safeMessage, reply);
+          } catch (error) {
+            // No-op for streaming teardown failures.
+          } finally {
+            isSaving = false;
+          }
         }
         return;
       }

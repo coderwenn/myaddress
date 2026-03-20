@@ -8,6 +8,9 @@
     "build:web": "pnpm -C apps/web build",
     "lint:web": "pnpm -C apps/web lint",
     "preview:web": "pnpm -C apps/web preview",
+    "dev:admin": "pnpm -C apps/admin dev",
+    "build:admin": "pnpm -C apps/admin build",
+    "preview:admin": "pnpm -C apps/admin preview",
     "dev:server": "pnpm -C apps/server dev",
     "build:server": "pnpm -C apps/server build",
     "start:server": "pnpm -C apps/server start"

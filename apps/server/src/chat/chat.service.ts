@@ -25,8 +25,10 @@ export class ChatService {
     private readonly apiKeysService: ApiKeysService,
   ) {}
 
-  async listConversations() {
+  async listConversations(userId?: number) {
+    const where = userId ? { user_id: userId } : {};
     const [list, total] = await this.conversationRepo.findAndCount({
+      where,
       order: { updated_at: 'DESC' },
     });
     return { list, total };
@@ -36,10 +38,11 @@ export class ChatService {
     title: string;
     content?: string;
     ai_response?: string;
+    user_id: number;
   }) {
     const conversation = this.conversationRepo.create({
       title: payload.title || 'New Conversation',
-      user_id: 1,
+      user_id: payload.user_id,
     });
     const saved = await this.conversationRepo.save(conversation);
     if (payload.content || payload.ai_response) {
@@ -47,15 +50,22 @@ export class ChatService {
         content: payload.content,
         ai_response: payload.ai_response,
         conversation_id: saved.id,
+        user_id: payload.user_id,
       });
       await this.messageRepo.save(message);
     }
     return { id: saved.id };
   }
 
-  async getConversationDetail(conversationId: number) {
+  async getConversationDetail(conversationId: number, userId?: number) {
+    const where: { conversation_id: number; user_id?: number } = {
+      conversation_id: conversationId,
+    };
+    if (userId) {
+      where.user_id = userId;
+    }
     const messages = await this.messageRepo.find({
-      where: { conversation_id: conversationId },
+      where,
       order: { created_at: 'ASC' },
     });
     return { list: messages };
@@ -63,21 +73,44 @@ export class ChatService {
 
   async appendConversationMessage(
     conversationId: number,
+    userId: number,
     content: string,
     aiResponse: string,
+    provider?: ApiProvider,
+    model?: string,
   ) {
     const exists = await this.conversationRepo.findOne({
-      where: { id: conversationId },
+      where: { id: conversationId, user_id: userId },
     });
     if (!exists) {
       throw new NotFoundException('Conversation not found');
     }
-    const message = this.messageRepo.create({
+    const userMessage = this.messageRepo.create({
       content,
-      ai_response: aiResponse,
+      role: 'user',
+      content_type: 'text',
       conversation_id: conversationId,
-    });
-    await this.messageRepo.save(message);
+      user_id: userId,
+    } as Partial<ConversationMessage>);
+    const assistantMessage = this.messageRepo.create({
+      content: aiResponse,
+      role: 'assistant',
+      content_type: 'text',
+      conversation_id: conversationId,
+      user_id: userId,
+      provider: provider ?? null,
+      model: model ?? null,
+    } as Partial<ConversationMessage>);
+    await this.messageRepo.save([userMessage, assistantMessage]);
+    const preview = aiResponse || content;
+    await this.conversationRepo.update(
+      { id: conversationId },
+      {
+        last_message_preview: preview?.slice(0, 200),
+        last_message_at: new Date(),
+        message_count: (exists.message_count ?? 0) + 2,
+      },
+    );
   }
 
   private getProviderBaseUrl(provider: ApiProvider) {
@@ -107,7 +140,7 @@ export class ChatService {
       provider,
     );
     if (!keyInfo?.apiKey) {
-      return { content: '', provider: null };
+      return { content: '', provider: null as ApiProvider | null, model: '' };
     }
     const baseUrl = this.getProviderBaseUrl(keyInfo.provider);
     const model = this.getProviderModel(keyInfo.provider);
@@ -129,7 +162,7 @@ export class ChatService {
     }
     const data = await response.json();
     const content = data?.choices?.[0]?.message?.content ?? '';
-    return { content, provider: keyInfo.provider };
+    return { content, provider: keyInfo.provider, model };
   }
 
   createImageTask(prompt: string) {

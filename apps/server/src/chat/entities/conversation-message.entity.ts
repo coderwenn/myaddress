@@ -18,6 +18,21 @@ export class ConversationMessage {
   @Column({ type: 'text', nullable: true })
   ai_response?: string;
 
+  @Column({ type: 'varchar', length: 20, default: 'user' })
+  role!: 'user' | 'assistant' | 'system';
+
+  @Column({ type: 'varchar', length: 10, default: 'text' })
+  content_type!: 'text' | 'img';
+
+  @Column({ type: 'varchar', length: 40, nullable: true })
+  provider?: string;
+
+  @Column({ type: 'varchar', length: 80, nullable: true })
+  model?: string;
+
+  @Column({ type: 'int', nullable: true })
+  user_id?: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at!: Date;
 

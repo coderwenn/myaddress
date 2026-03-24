@@ -1,29 +1,33 @@
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Res, BadRequestException } from '@nestjs/common';
 import type { Response } from 'express';
 import { ChatService } from './chat.service';
+import { ApiProvider } from '../api-keys/entities/api-key.entity';
 
 @Controller()
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post('conversation/list')
-  async getConversationList(@Body() body: { conversation_id?: number }) {
+  async getConversationList(@Body() body: { conversation_id?: number; user_id?: number }) {
     if (body?.conversation_id) {
       return {
         code: '200',
-        data: await this.chatService.getConversationDetail(body.conversation_id),
+        data: await this.chatService.getConversationDetail(body.conversation_id, body.user_id),
         msg: 'ok',
       };
     }
     return {
       code: '200',
-      data: await this.chatService.listConversations(),
+      data: await this.chatService.listConversations(body?.user_id),
       msg: 'ok',
     };
   }
 
   @Post('conversation/create')
-  async createConversation(@Body() body: { title: string; content?: string; ai_response?: string }) {
+  async createConversation(@Body() body: { title: string; content?: string; ai_response?: string; user_id: number }) {
+    if (!body?.user_id) {
+      throw new BadRequestException('user_id is required');
+    }
     const result = await this.chatService.createConversation(body);
     return {
       code: '200',
@@ -53,9 +57,13 @@ export class ChatController {
       return;
     }
     let reply = '';
+    let modelProvider: ApiProvider | null = null;
+    let modelName = '';
     try {
       const response = await this.chatService.generateChatResponse(safeMessage, numericUserId);
       reply = response.content || '';
+      modelProvider = response.provider ?? null;
+      modelName = response.model ?? '';
       if (!reply) {
         res.write(`data: ${JSON.stringify({ error: 'no available model' })}\n\n`);
         res.write(`data: [DONE]\n\n`);
@@ -72,6 +80,7 @@ export class ChatController {
     const conversationIdNumber = Number(conversationId);
 
     let isSaving = false;
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     const timer = setInterval(async () => {
       if (index >= reply.length) {
         clearInterval(timer);
@@ -81,7 +90,14 @@ export class ChatController {
           try {
             if (isSaving) return;
             isSaving = true;
-            await this.chatService.appendConversationMessage(conversationIdNumber, safeMessage, reply);
+            await this.chatService.appendConversationMessage(
+              conversationIdNumber,
+              numericUserId,
+              safeMessage,
+              reply,
+              modelProvider ?? undefined,
+              modelName ?? undefined,
+            );
           } catch (error) {
             // No-op for streaming teardown failures.
           } finally {

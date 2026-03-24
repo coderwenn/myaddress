@@ -7,7 +7,10 @@ import { ConversationMessage } from './entities/conversation-message.entity';
 import { ApiKeysModule } from '../api-keys/api-keys.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Conversation, ConversationMessage]), ApiKeysModule],
+  imports: [
+    TypeOrmModule.forFeature([Conversation, ConversationMessage]),
+    ApiKeysModule,
+  ],
   controllers: [ChatController],
   providers: [ChatService],
 })

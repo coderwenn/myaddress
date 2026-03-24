@@ -14,17 +14,17 @@ export function getImgUrl(taskid: string) {
 }
 
 // 获取当前user的对话列表
-export function getConversationList<T = any>(): Promise<{ code: string, data: T, msg: string }> {
-    return api.post('/conversation/list')
+export function getConversationList<T = any>(user_id?: number): Promise<{ code: string, data: T, msg: string }> {
+    return api.post('/conversation/list', { user_id })
 }
 
 // 新增对话
-export function addConversation<T = any>(params: conversationItem): Promise<{ code: string, data: T, msg: string }> {
+export function addConversation<T = any>(params: conversationItem & { user_id: number }): Promise<{ code: string, data: T, msg: string }> {
     return api.post('/conversation/create', params)
 }
 
 // 根据id查看对话list
-export function getConversationDetail<T = any>(params: { conversation_id: number }): Promise<{ code: string, data: T, msg: string }> {
+export function getConversationDetail<T = any>(params: { conversation_id: number, user_id?: number }): Promise<{ code: string, data: T, msg: string }> {
     return api.post('/conversation/list', params)
 }
 

@@ -161,13 +161,15 @@ const useChatConfig = () => {
   }
 
   const refreshConversationList = useCallback(async () => {
-    const res = await getConversationList();
+    const userId = getCurrentUserId();
+    if (!userId) return;
+    const res = await getConversationList(userId);
     if (!res?.data) return;
     setConversationList(res.data);
     const list = res.data.list || [];
     if (list.length > 0) {
       setActiveConversationId(prev => {
-        if (prev && list.some(item => item.id === prev)) return prev;
+        if (prev && list.some((item: { id: number; }) => item.id === prev)) return prev;
         return list[0].id;
       })
     }
@@ -175,10 +177,13 @@ const useChatConfig = () => {
 
   // 新增对话
   const addNewConversation = useCallback(async (title: string) => {
+    const userId = getCurrentUserId();
+    if (!userId) return null;
     const res = await addConversation({
       title: title || 'New Conversation',
       content: '',
-      ai_response: ''
+      ai_response: '',
+      user_id: userId,
     })
     const createdId = res?.data?.id ?? res?.data?.conversation_id ?? null;
     await refreshConversationList();
@@ -189,7 +194,11 @@ const useChatConfig = () => {
   }, [refreshConversationList])
   const loadConversationMessages = useCallback(async (conversationId: number) => {
     try {
-      const res = await getConversationDetail({ conversation_id: conversationId });
+      const userId = getCurrentUserId();
+      const res = await getConversationDetail({
+        conversation_id: conversationId,
+        user_id: userId ?? undefined,
+      });
       if (!res?.data) return;
       const normalized = normalizeConversationMessages(res.data);
       setMessagesByConversation(prev => ({

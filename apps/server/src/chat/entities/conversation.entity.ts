@@ -12,6 +12,15 @@ export class Conversation {
   @Column({ type: 'varchar', length: 120 })
   title!: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  last_message_preview?: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  last_message_at?: Date;
+
+  @Column({ type: 'int', default: 0 })
+  message_count!: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at!: Date;
 

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { ApiKey, ApiProvider } from './entities/api-key.entity';
 import crypto from 'crypto';
 
@@ -27,7 +27,7 @@ export class ApiKeysService {
   constructor(
     @InjectRepository(ApiKey)
     private readonly apiKeyRepo: Repository<ApiKey>,
-  ) {}
+  ) { }
 
   private getSecret() {
     return process.env.APIKEY_SECRET ?? process.env.JWT_SECRET ?? 'dev-secret';
@@ -41,6 +41,17 @@ export class ApiKeysService {
     return `${iv.toString('base64')}:${encrypted.toString('base64')}`;
   }
 
+  private decryptApiKey(encrypted: string) {
+    const [ivBase64, dataBase64] = encrypted.split(':');
+    if (!ivBase64 || !dataBase64) return '';
+    const key = crypto.createHash('sha256').update(this.getSecret()).digest();
+    const iv = Buffer.from(ivBase64, 'base64');
+    const encryptedBuf = Buffer.from(dataBase64, 'base64');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    const decrypted = Buffer.concat([decipher.update(encryptedBuf), decipher.final()]);
+    return decrypted.toString('utf8');
+  }
+
   private maskApiKey(plain: string) {
     const last4 = plain.slice(-4);
     return last4 ? `****${last4}` : '****';
@@ -48,6 +59,39 @@ export class ApiKeysService {
 
   async list() {
     return this.apiKeyRepo.find({ order: { id: 'DESC' } });
+  }
+
+  async hasAvailableKey(userId: number, provider?: ApiProvider) {
+    const where: FindOptionsWhere<ApiKey> = { is_active: true };
+    if (provider) {
+      where.provider = provider;
+    }
+    const keys = await this.apiKeyRepo.find({ where, order: { id: 'DESC' } });
+    return keys.some((key) => {
+      const allowed = key.allowed_users ?? [];
+      if (key.user_id === userId) return true;
+      if (allowed.length === 0) return true;
+      return allowed.includes(userId);
+    });
+  }
+
+  async getAvailableKeyForUser(userId: number, provider?: ApiProvider) {
+    const where: FindOptionsWhere<ApiKey> = { is_active: true };
+    if (provider) {
+      where.provider = provider;
+    }
+    const keys = await this.apiKeyRepo.find({ where, order: { id: 'DESC' } });
+    const matched = keys.find((key) => {
+      const allowed = key.allowed_users ?? [];
+      if (key.user_id === userId) return true;
+      if (allowed.length === 0) return true;
+      return allowed.includes(userId);
+    });
+    if (!matched) return null;
+    return {
+      provider: matched.provider,
+      apiKey: this.decryptApiKey(matched.api_key_encrypted),
+    };
   }
 
   async create(payload: CreatePayload) {
@@ -69,7 +113,8 @@ export class ApiKeysService {
 
     if (payload.user_id !== undefined) apiKey.user_id = payload.user_id;
     if (payload.provider !== undefined) apiKey.provider = payload.provider;
-    if (payload.allowed_users !== undefined) apiKey.allowed_users = payload.allowed_users;
+    if (payload.allowed_users !== undefined)
+      apiKey.allowed_users = payload.allowed_users;
     if (payload.is_active !== undefined) apiKey.is_active = payload.is_active;
     if (payload.remark !== undefined) apiKey.remark = payload.remark;
     if (payload.api_key) {

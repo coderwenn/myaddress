@@ -31,12 +31,15 @@ const Page = () => {
 
   const login = async (values: any) => {
     const res = await getUserToken(values)
-    if (res.code === 200) {
+    console.log('登录结果', res);
+    if (res.access_token) {
       message.success('登录成功');
       // 设置token
-      localStorage.setItem('aiChat', res.data.token);
+      localStorage.setItem('token', res.access_token);
+      // 存储身份信息
+      localStorage.setItem('user', JSON.stringify(res.user ?? {}));
       // 设置cookie
-      Cookies.set('AICHAT', res.data.token, { expires: 7 });
+      Cookies.set('AICHAT', res.access_token, { expires: 7 });
       // 跳转到首页
       navigate('/')
     } else {
@@ -64,7 +67,7 @@ const Page = () => {
         }}
         subTitle="coder的网站"
         initialValues={{
-          username: 'wenn',
+          username: '18303873290',
           password: 'qianxi11',
 
         }}

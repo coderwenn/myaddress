@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ApiKeysService } from './api-keys.service';
 import { ApiProvider } from './entities/api-key.entity';
 
@@ -10,6 +20,22 @@ export class ApiKeysController {
   async list() {
     const data = await this.apiKeysService.list();
     return { code: '200', data, msg: 'ok' };
+  }
+
+  @Get('available')
+  async available(
+    @Query('user_id') userId: string,
+    @Query('provider') provider?: ApiProvider,
+  ) {
+    const numericUserId = Number(userId);
+    if (!userId || Number.isNaN(numericUserId)) {
+      throw new BadRequestException('user_id is required');
+    }
+    const available = await this.apiKeysService.hasAvailableKey(
+      numericUserId,
+      provider,
+    );
+    return { code: '200', data: { available }, msg: 'ok' };
   }
 
   @Post()

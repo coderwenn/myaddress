@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Flex, Layout, Typography, message as mes, Modal, Form, Input } from 'antd';
 import { Welcome } from '@ant-design/x';
 import Message from './components/Message';
@@ -8,6 +8,7 @@ import AiType from './components/AiType';
 import { ChatContext } from "@/pages/chat/ctx";
 import useChatConfig from './hooks';
 import { useNavigate } from 'react-router-dom';
+import api from '@/utils/netWork';
 
 import DialogueHistory from './components/dialogue-hstory';
 
@@ -84,6 +85,41 @@ const ChatPage = () => {
 	const isLoading = isSending(activeConversationId, aiType);
 	const messageList = currentMessages[aiType] ?? [];
 	const canRetry = hasLastPrompt(activeConversationId, aiType);
+
+	useEffect(() => {
+		const checkAccess = async () => {
+			const token = localStorage.getItem('token') || localStorage.getItem('AICHAT');
+			const userRaw = localStorage.getItem('user');
+			if (!token || !userRaw) {
+				mes.warning('请先登录');
+				navigate('/login');
+				return;
+			}
+			let userId: number | null = null;
+			try {
+				const parsed = JSON.parse(userRaw);
+				userId = Number(parsed?.sub ?? parsed?.id ?? null);
+			} catch {
+				userId = null;
+			}
+			if (!userId) {
+				mes.warning('请先登录');
+				navigate('/login');
+				return;
+			}
+			try {
+				const res = await api.get('/api-keys/available', {
+					params: { user_id: userId },
+				});
+				if (!res?.data?.available) {
+					mes.warning('没有可用的模型，请联系管理员');
+				}
+			} catch {
+				mes.warning('无法校验模型权限');
+			}
+		};
+		checkAccess();
+	}, [navigate]);
 
 	return (
 		<ChatContext.Provider value={{

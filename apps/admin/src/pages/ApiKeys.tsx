@@ -20,20 +20,12 @@ type FormState = {
   user_id: number;
   provider: ApiProvider;
   api_key?: string;
-  allowed_users?: string;
+  allowed_users?: number[];
   is_active: boolean;
   remark?: string;
 };
 
 const API_BASE = '/api/api-keys';
-
-function parseAllowedUsers(value?: string) {
-  if (!value) return [];
-  return value
-    .split(',')
-    .map((item) => Number(item.trim()))
-    .filter((num) => !Number.isNaN(num));
-}
 
 export default function ApiKeysPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -140,7 +132,7 @@ export default function ApiKeysPage() {
                 user_id: editing.user_id,
                 provider: editing.provider,
                 is_active: editing.is_active,
-                allowed_users: editing.allowed_users?.join(','),
+                allowed_users: editing.allowed_users ?? [],
                 remark: editing.remark,
               }
             : {
@@ -156,10 +148,9 @@ export default function ApiKeysPage() {
         }}
         onFinish={async (values) => {
           const payload = {
-            user_id: Number(values.user_id),
             provider: values.provider,
             api_key: values.api_key,
-            allowed_users: parseAllowedUsers(values.allowed_users),
+            user_id: values.allowed_users ?? [],
             is_active: values.is_active ?? true,
             remark: values.remark,
           };
@@ -199,10 +190,19 @@ export default function ApiKeysPage() {
           placeholder={editing ? '不修改可留空' : '请输入 API Key'}
           rules={editing ? [] : [{ required: true, message: '请输入 API Key' }]}
         />
-        <ProFormText
+        <ProFormSelect
           name="allowed_users"
           label="可用人员"
-          placeholder="多个用户ID用逗号分隔，空表示全部"
+          fieldProps={{ mode: 'multiple', placeholder: '选择可用人员，空表示全部' }}
+          rules={[{ required: true, message: '请选择可用人员' }]}
+          request={async () => {
+            const res = await api.get('/api/users');
+            const list = res.data ?? [];
+            return list.map((item: { id: number; account: string }) => ({
+              label: `${item.account} (#${item.id})`,
+              value: item.id,
+            }));
+          }}
         />
         <ProFormSwitch name="is_active" label="启用" />
         <ProFormTextArea name="remark" label="备注" />

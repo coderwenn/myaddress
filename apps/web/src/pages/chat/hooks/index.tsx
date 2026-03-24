@@ -4,6 +4,8 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 import { addConversation, getConversationDetail, getConversationList, getImgTask, getImgUrl } from '../service';
 import { getAiMessage, getMessage } from '../utils';
+import api from '@/utils/netWork';
+import { message as antdMessage } from 'antd';
 
 type messListType = {
   text: Array<messageItem>
@@ -210,7 +212,41 @@ const useChatConfig = () => {
     return createdId;
   }, [activeConversationId, conversationList.list, addNewConversation])
 
+  const getCurrentUserId = () => {
+    try {
+      const raw = localStorage.getItem('user');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return Number(parsed?.sub ?? parsed?.id ?? null);
+    } catch {
+      return null;
+    }
+  };
+
+  const checkAvailableKey = useCallback(async () => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      antdMessage.warning('请先登录');
+      return false;
+    }
+    try {
+      const res = await api.get('/api-keys/available', {
+        params: { user_id: userId },
+      });
+      if (!res?.data?.available) {
+        antdMessage.warning('没有可用的模型，请联系管理员');
+        return false;
+      }
+      return true;
+    } catch {
+      antdMessage.warning('无法校验模型权限');
+      return false;
+    }
+  }, []);
+
   const sendTextMessage = useCallback(async (message: string, conversationId?: number | null) => {
+    const canUse = await checkAvailableKey();
+    if (!canUse) return false;
     const ensuredId = await ensureActiveConversation(conversationId);
     if (!ensuredId) return false;
     const key = getConversationKey(ensuredId);
@@ -230,7 +266,8 @@ const useChatConfig = () => {
     setSendingState(ensuredId, 'text', true);
 
     const streamKey = `${ensuredId}:text`;
-    const streamUrl = `${url}/ai/aiChat?message=${encodeURIComponent(message)}`;
+    const userId = getCurrentUserId();
+    const streamUrl = `${url}/api/ai/aiChat?message=${encodeURIComponent(message)}&user_id=${encodeURIComponent(String(userId ?? ''))}`;
 
     return new Promise<boolean>((resolve) => {
       startStream(
@@ -261,9 +298,11 @@ const useChatConfig = () => {
         }
       )
     })
-  }, [appendMessage, ensureActiveConversation, setSendingState, startStream, upsertMessage])
+  }, [appendMessage, ensureActiveConversation, setSendingState, startStream, upsertMessage, checkAvailableKey])
 
   const sendImageMessage = useCallback(async (message: string, conversationId?: number | null) => {
+    const canUse = await checkAvailableKey();
+    if (!canUse) return false;
     const ensuredId = await ensureActiveConversation(conversationId);
     if (!ensuredId) return false;
     const key = getConversationKey(ensuredId);
@@ -324,7 +363,7 @@ const useChatConfig = () => {
       setSendingState(ensuredId, 'img', false);
       return false;
     }
-  }, [appendMessage, ensureActiveConversation, setSendingState, upsertMessage])
+  }, [appendMessage, ensureActiveConversation, setSendingState, upsertMessage, checkAvailableKey])
 
   useEffect(() => {
     // 初始化时获取对话列表

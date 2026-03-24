@@ -33,14 +33,41 @@ export class ChatController {
   }
 
   @Get('ai/aiChat')
-  async aiChat(@Query('message') message: string, @Query('conversation_id') conversationId: string, @Res() res: Response) {
+  async aiChat(
+    @Query('message') message: string,
+    @Query('conversation_id') conversationId: string,
+    @Query('user_id') userId: string,
+    @Res() res: Response,
+  ) {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
     const safeMessage = message || '';
-    const reply = `Echo: ${safeMessage}`;
+    const numericUserId = Number(userId);
+    if (!userId || Number.isNaN(numericUserId)) {
+      res.write(`data: ${JSON.stringify({ error: 'user_id required' })}\n\n`);
+      res.write(`data: [DONE]\n\n`);
+      res.end();
+      return;
+    }
+    let reply = '';
+    try {
+      const response = await this.chatService.generateChatResponse(safeMessage, numericUserId);
+      reply = response.content || '';
+      if (!reply) {
+        res.write(`data: ${JSON.stringify({ error: 'no available model' })}\n\n`);
+        res.write(`data: [DONE]\n\n`);
+        res.end();
+        return;
+      }
+    } catch (error) {
+      res.write(`data: ${JSON.stringify({ error: 'provider error' })}\n\n`);
+      res.write(`data: [DONE]\n\n`);
+      res.end();
+      return;
+    }
     let index = 0;
     const conversationIdNumber = Number(conversationId);
 

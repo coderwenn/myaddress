@@ -276,7 +276,7 @@ const useChatConfig = () => {
 
     const streamKey = `${ensuredId}:text`;
     const userId = getCurrentUserId();
-    const streamUrl = `${url}/api/ai/aiChat?message=${encodeURIComponent(message)}&user_id=${encodeURIComponent(String(userId ?? ''))}`;
+    const streamUrl = `${url}/api/ai/aiChat?message=${encodeURIComponent(message)}&user_id=${encodeURIComponent(String(userId ?? ''))}&conversation_id=${encodeURIComponent(String(ensuredId))}`;
 
     return new Promise<boolean>((resolve) => {
       startStream(

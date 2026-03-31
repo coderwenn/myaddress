@@ -71,7 +71,11 @@ export default function UsersPage() {
           type="link"
           danger
           onClick={async () => {
-          const res = await api.delete(`${API_BASE}/${record.id}`);
+          const res = await api.delete(`${API_BASE}/${record.id}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('admin_token') ?? ''}`,
+            },
+          });
           if (res) {
             message.success('删除成功');
             actionRef.current?.reload?.();
@@ -108,7 +112,11 @@ export default function UsersPage() {
         search={false}
         actionRef={actionRef}
         request={async () => {
-          const data = await api.get(API_BASE);
+          const data = await api.get(API_BASE, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('admin_token') ?? ''}`,
+            },
+          });
           return {
             data: data.data ?? [],
             success: true,
@@ -153,6 +161,9 @@ export default function UsersPage() {
             url,
             method,
             data: payload,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('admin_token') ?? ''}`,
+            },
           });
           if (res) {
             message.success('保存成功');

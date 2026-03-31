@@ -78,7 +78,11 @@ export default function ApiKeysPage() {
           type="link"
           danger
           onClick={async () => {
-            const res = await api.delete(`${API_BASE}/${record.id}`);
+            const res = await api.delete(`${API_BASE}/${record.id}`, {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('admin_token') ?? ''}`,
+              },
+            });
             if (res) {
               message.success('删除成功');
               actionRef.current?.reload?.();
@@ -115,7 +119,11 @@ export default function ApiKeysPage() {
         search={false}
         actionRef={actionRef}
         request={async () => {
-          const data = await api.get(API_BASE);
+          const data = await api.get(API_BASE, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('admin_token') ?? ''}`,
+            },
+          });
           return {
             data: data.data ?? [],
             success: true,
@@ -160,6 +168,9 @@ export default function ApiKeysPage() {
             url,
             method,
             data: payload,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('admin_token') ?? ''}`,
+            },
           });
           if (res) {
             message.success('保存成功');
@@ -196,7 +207,11 @@ export default function ApiKeysPage() {
           fieldProps={{ mode: 'multiple', placeholder: '选择可用人员，空表示全部' }}
           rules={[{ required: true, message: '请选择可用人员' }]}
           request={async () => {
-            const res = await api.get('/api/users');
+            const res = await api.get('/api/users', {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('admin_token') ?? ''}`,
+              },
+            });
             const list = res.data ?? [];
             return list.map((item: { id: number; account: string }) => ({
               label: `${item.account} (#${item.id})`,
